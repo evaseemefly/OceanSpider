@@ -141,73 +141,73 @@ def init_all_year_ser(year: int, freq: str = '1H'):
 
 def main():
     # step1: 爬取指定海洋站原始数据并存储
-    # list_year_split_dt = get_target_year_all_dt(2021)
-    # all_data_df: pd.DataFrame = None
-    # for dt_temp in list_year_split_dt:
-    #     dt_str: str = dt_temp.format('YYYY-MM-DD')
-    #     df = get_station_rad_df(dt_str)
-    #     if all_data_df is None:
-    #         all_data_df = df
-    #     else:
-    #         if df is not None:
-    #             all_data_df = pd.concat([all_data_df, df])
-    # # 对 df 按照 ts index进行去重
-    # all_data_df.drop_duplicates(subset=['ts'], keep='first', inplace=True)
-    # # 存储
-    # to_store('/opt/project', 'qinglan_2021_all.csv', all_data_df)
+    list_year_split_dt = get_target_year_all_dt(2021)
+    all_data_df: pd.DataFrame = None
+    for dt_temp in list_year_split_dt:
+        dt_str: str = dt_temp.format('YYYY-MM-DD')
+        df = get_station_rad_df(dt_str)
+        if all_data_df is None:
+            all_data_df = df
+        else:
+            if df is not None:
+                all_data_df = pd.concat([all_data_df, df])
+    # 对 df 按照 ts index进行去重
+    all_data_df.drop_duplicates(subset=['ts'], keep='first', inplace=True)
+    # 存储
+    to_store('/opt/project', 'qinglan_2021_all.csv', all_data_df)
 
-    # step2: 数据标准化
-    # TODO:[*] 此处在提取整点时刻的数据时出错！,注意
-    # read_df = pd.read_csv('/opt/project/qinglan_2021_all.csv', parse_dates=['ts'])
-    # # step2-1: 将爬取的原始数数据按照时间间隔为1min提取为分钟数据，并按照向上填充的方式进行填充
-    # def str2int64(val: str):
-    #     return np.int64(val)
-    #
-    # def dt64ToTs(val64):
-    #     """
-    #         datetime64[ns] -> timestamp
-    #     :param val:
-    #     :return:
-    #     """
-    #     # 注意此处需要转换为 int 时间戳
-    #     dt: datetime.datetime = pd.Timestamp(val64).to_pydatetime()
-    #     return arrow.get(dt).int_timestamp
-    # # 将时间戳 str -> int
-    # read_df['ts'] = read_df.apply(lambda x: str2int64(x['ts']), axis=1)
-    # read_df.set_index('ts')
-    # # 生成 分钟级的索引列表
-    # dt_split_minute_indexs = init_all_year_ser(2021, '60s')
-    # # 注意其中的 dt 为 numpy.datetime64 类型！
-    # dt_split_minute_stamp_df = pd.DataFrame(
-    #     {'index': np.arange(0, len(dt_split_minute_indexs)), 'dt': dt_split_minute_indexs})
-    # # 将匹配的全部分钟df加入时间戳
-    # dt_split_minute_stamp_df['ts'] = dt_split_minute_stamp_df.apply(lambda x: dt64ToTs(x['dt']), axis=1)
-    # # 设置 ts 为 index
-    # dt_split_minute_stamp_df.set_index('ts')
-    # # 将该年份所有分钟数据按照就近原则进行填充
-    # reslt_all_df = pd.merge(dt_split_minute_stamp_df, read_df, on='ts', how='outer')
-    # reslt_all_df = reslt_all_df.fillna(method='ffill', axis=0)[['dt_x', 'ts', 'rad']]
-    # to_store('/opt/project', 'qinglan_2021_fill_minutes.csv', reslt_all_df)
-    # # -----
-    # # step2-2: 将分钟数据提取整点时刻并存储至新的文件
-    # dt_split_hours_indexs = init_all_year_ser(2021)
-    # # 整点时间标记df
-    # dt_split_hours_stamp_df = pd.DataFrame(
-    #     {'index': np.arange(0, len(dt_split_hours_indexs)), 'dt': dt_split_hours_indexs})
-    #
-    # dt_split_hours_stamp_df['ts'] = dt_split_hours_stamp_df.apply(lambda x: dt64ToTs(x['dt']), axis=1)
-    #
-    # dt_split_hours_stamp_df.set_index('ts')
-    # # 将 read_df 与 dt_split_hours_stamp_df 合并
-    # # TODO: [*] 22-04-27 注意 使用 how='outer' 时会出现 : ValueError: Timezones don't match. 'tzutc()' != 'UTC'
-    # # 使用 int timestamp 后 ,merge 出现 : {ValueError}You are trying to merge on int64 and object columns. If you wish to proceed you should use pd.concat
-    # # 注意 read_df 中的 ts 是 str | dt_split_hours_stamp_df 中的 ts 是 int64
-    # # 切记此处由于是需要将全部分钟数据提取为 整点数据，所以此处切记不要写成reslt_df，这有一个隐藏bug，注意！
-    # reslt_df = pd.merge(dt_split_hours_stamp_df, reslt_all_df, on='ts', how='left')
-    # # 注意此处不需要再执行填充操作了，因为上面的全分钟df已经包含了可能的全部时间
-    # # reslt_df = reslt_df.fillna(method='ffill', axis=0)[['dt_x', 'ts', 'rad']]
-    # # to_store('/opt/project', 'qinglan_2021_fill.csv', reslt_df)
-    # to_store('/opt/project', 'qinglan_2021_split_hours.csv', reslt_df)
+    step2: 数据标准化
+    TODO:[*] 此处在提取整点时刻的数据时出错！,注意
+    read_df = pd.read_csv('/opt/project/qinglan_2021_all.csv', parse_dates=['ts'])
+    # step2-1: 将爬取的原始数数据按照时间间隔为1min提取为分钟数据，并按照向上填充的方式进行填充
+    def str2int64(val: str):
+        return np.int64(val)
+
+    def dt64ToTs(val64):
+        """
+            datetime64[ns] -> timestamp
+        :param val:
+        :return:
+        """
+        # 注意此处需要转换为 int 时间戳
+        dt: datetime.datetime = pd.Timestamp(val64).to_pydatetime()
+        return arrow.get(dt).int_timestamp
+    # 将时间戳 str -> int
+    read_df['ts'] = read_df.apply(lambda x: str2int64(x['ts']), axis=1)
+    read_df.set_index('ts')
+    # 生成 分钟级的索引列表
+    dt_split_minute_indexs = init_all_year_ser(2021, '60s')
+    # 注意其中的 dt 为 numpy.datetime64 类型！
+    dt_split_minute_stamp_df = pd.DataFrame(
+        {'index': np.arange(0, len(dt_split_minute_indexs)), 'dt': dt_split_minute_indexs})
+    # 将匹配的全部分钟df加入时间戳
+    dt_split_minute_stamp_df['ts'] = dt_split_minute_stamp_df.apply(lambda x: dt64ToTs(x['dt']), axis=1)
+    # 设置 ts 为 index
+    dt_split_minute_stamp_df.set_index('ts')
+    # 将该年份所有分钟数据按照就近原则进行填充
+    reslt_all_df = pd.merge(dt_split_minute_stamp_df, read_df, on='ts', how='outer')
+    reslt_all_df = reslt_all_df.fillna(method='ffill', axis=0)[['dt_x', 'ts', 'rad']]
+    to_store('/opt/project', 'qinglan_2021_fill_minutes.csv', reslt_all_df)
+    # -----
+    # step2-2: 将分钟数据提取整点时刻并存储至新的文件
+    dt_split_hours_indexs = init_all_year_ser(2021)
+    # 整点时间标记df
+    dt_split_hours_stamp_df = pd.DataFrame(
+        {'index': np.arange(0, len(dt_split_hours_indexs)), 'dt': dt_split_hours_indexs})
+
+    dt_split_hours_stamp_df['ts'] = dt_split_hours_stamp_df.apply(lambda x: dt64ToTs(x['dt']), axis=1)
+
+    dt_split_hours_stamp_df.set_index('ts')
+    # 将 read_df 与 dt_split_hours_stamp_df 合并
+    # TODO: [*] 22-04-27 注意 使用 how='outer' 时会出现 : ValueError: Timezones don't match. 'tzutc()' != 'UTC'
+    # 使用 int timestamp 后 ,merge 出现 : {ValueError}You are trying to merge on int64 and object columns. If you wish to proceed you should use pd.concat
+    # 注意 read_df 中的 ts 是 str | dt_split_hours_stamp_df 中的 ts 是 int64
+    # 切记此处由于是需要将全部分钟数据提取为 整点数据，所以此处切记不要写成reslt_df，这有一个隐藏bug，注意！
+    reslt_df = pd.merge(dt_split_hours_stamp_df, reslt_all_df, on='ts', how='left')
+    # 注意此处不需要再执行填充操作了，因为上面的全分钟df已经包含了可能的全部时间
+    # reslt_df = reslt_df.fillna(method='ffill', axis=0)[['dt_x', 'ts', 'rad']]
+    # to_store('/opt/project', 'qinglan_2021_fill.csv', reslt_df)
+    to_store('/opt/project', 'qinglan_2021_split_hours.csv', reslt_df)
 
     # step3: .csv -> .txt
     full_path: str = ''
