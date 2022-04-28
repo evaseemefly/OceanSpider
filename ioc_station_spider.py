@@ -156,8 +156,8 @@ def main():
     # 存储
     to_store('/opt/project', 'qinglan_2021_all.csv', all_data_df)
 
-    step2: 数据标准化
-    TODO:[*] 此处在提取整点时刻的数据时出错！,注意
+    # step2: 数据标准化
+    # TODO:[*] 此处在提取整点时刻的数据时出错！,注意
     read_df = pd.read_csv('/opt/project/qinglan_2021_all.csv', parse_dates=['ts'])
     # step2-1: 将爬取的原始数数据按照时间间隔为1min提取为分钟数据，并按照向上填充的方式进行填充
     def str2int64(val: str):
