@@ -38,3 +38,13 @@ rad // 爬取的海洋站的观测值
 │ ├── qinglan_2021_split_hours.csv  // 提取 sep为1h的数据集
 │ ├── qinglan_2021_split_hours.txt  // sep=1h -> txt 每行对应当日的24个时刻的数据
 ```
+
+### 2- `ioc_station_deviation.py` - 对爬取的 ioc station 数据进行差值处理    
+ * 1: 先将原始数据，按照 limit 设置一定长度，进行线性插值，获得 原始 与 插值后 两个 df  
+* 2: 对差值后的 df 与 原始df进行比对处理，将在原始数据中连续nan超过60并进行差值的数据还原为 nan    
+原始数据:
+![原始数据](./pic/deviation/source.png)
+差值但为按照limit进行取nan:
+![原始数据](./pic/deviation/deviation_source.png)
+差值并对累计超过limit上线的差值取nan:
+![原始数据](./pic/deviation/deviation_converted.png)
