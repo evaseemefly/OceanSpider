@@ -58,10 +58,13 @@ def inter_rad_month(start, end, df: pd.DataFrame) -> pd.DataFrame:
     return [reslt_source_df, reslt_filter_df]
 
 
-def load_data():
-    dir_path_str: str = r'D:\01Proj\OceanSpider\qinglan_2021_source'
+def load_data(dir_path_str: str, station_code: str):
+    # dir_path_str: str = r'D:\01Proj\OceanSpider\qinglan_2021_source'
     dir_path = pathlib.Path(dir_path_str)
-    full_path_str: str = str(dir_path / 'qinglan_2021_all.csv')
+    full_path_str: str = str(dir_path / f'{station_code}_2021_all.csv')
+    if pathlib.Path(full_path_str).exists() is False:
+        return None
+
     # step2: 数据标准化
     # TODO:[*] 此处在提取整点时刻的数据时出错！,注意
     read_df = pd.read_csv(full_path_str, parse_dates=['ts'])
@@ -236,36 +239,96 @@ def main():
         2: 对差值后的 df 与 原始df进行比对处理，将在原始数据中连续nan超过60并进行差值的数据还原为 nan
     :return:
     '''
-    # test_inter()
+    list_station: List[str] = [
+        # 'rodr',
+        # 'ptlu',
+        # 'blueb',
+        # 'reun2',
+        # 'toam2',
+        # 'dzao2',
+        # 'laru2',
+        # 'garc',
+        # 'zanz',
+        # 'momb',
+        # 'lamu',
+        # 'sala',
+        # 'duqm',
+        # ---
+        # 'masi',
+        # 'ashk',
+        # 'suro',
+        # 'qura',
+        # 'musc',
+        # 'wuda',
+        # 'maji',
+        # 'diba',
+        # 'gwda',
+        # 'orma',
+        # 'kara',
+        # 'marm',
+        # 'coch',
+        # 'mini',
+        # 'hani',
+        # 'male',
+        # 'colo',
+        # --
+        # 'trin',
+        # 'chenn',
+        # 'vish',
+        # 'chtt',
+        # 'sitt',
+        # 'hain',
+        # 'ptbl',
+        # 'nanc',
+        # 'saba',
+        # 'lank'
+        # --
+        'ms002',
+        'ms004',
+        'ms005',
+        'ms006',
+        'sibo',
+        'sebe',
+        'maju',
+        'koli',
+        'pand',
+        'cili',
+        'sema',
+        'sadp',
+    ]
     # 定义 起止 的时间(ts)
-    start = datetime.datetime(2021, 1, 1)
-    end = datetime.datetime(2021, 2, 1)
-    reslt_all_df = load_data()
-    dfs = inter_rad_month(start, end, reslt_all_df)
-    start_filter = datetime.datetime(2021, 1, 1)
-    end_filter = datetime.datetime(2021, 2, 1)
-    start_filter_pd_ts = pd.Timestamp(start_filter)
-    start_filter_ts = start_filter_pd_ts.timestamp()
-    end_pd_ts = pd.Timestamp(end_filter)
-    end_filter_ts = end_pd_ts.timestamp()
-    # step1: 按照 起止 时间进行数据过滤
-    # 获取 原始 dfs
-    dfs_source = dfs[0]
-    con1 = dfs_source['ts'] > start_filter_ts
-    con2 = dfs_source['ts'] < end_filter_ts
-    dfs_source_res = dfs_source[con1 & con2]
-    # 重置索引，此时的索引已有问题
-    dfs_source_res.reset_index(inplace=True, drop=True)
-    # 获取经过差值处理后的 dfs
-    dfs_inter = dfs[1]
-    con1 = dfs_inter['ts'] > start_filter_ts
-    con2 = dfs_inter['ts'] < end_filter_ts
-    dfs_inter_res = dfs_inter[con1 & con2]
-    # step2: 对差值处理后的数据进行 nan limit 的过滤
-    df_new = convert_inter_df_2_nan(dfs_source_res, dfs_inter_res, 'rad', 60)
-    plt.plot(df_new['dt_x'], df_new['rad'])
-    plt.show()
-    to_store(r'D:\01Proj\OceanSpider\qinglan_2021_source', 'qinglan_2021_inter_01.csv', df_new)
+    # TODO:[-] 22-05-17 注意使用的是docker容器，注意路径不要用错!
+    dir_path_str: str = r'/opt/project/data'
+    for station_temp in list_station:
+        start = datetime.datetime(2021, 1, 1)
+        end = datetime.datetime(2022, 1, 1)
+        reslt_all_df = load_data(dir_path_str, station_temp)
+        if reslt_all_df is not None:
+            dfs = inter_rad_month(start, end, reslt_all_df)
+            start_filter = datetime.datetime(2021, 1, 1)
+            end_filter = datetime.datetime(2022, 1, 1)
+            start_filter_pd_ts = pd.Timestamp(start_filter)
+            start_filter_ts = start_filter_pd_ts.timestamp()
+            end_pd_ts = pd.Timestamp(end_filter)
+            end_filter_ts = end_pd_ts.timestamp()
+            # step1: 按照 起止 时间进行数据过滤
+            # 获取 原始 dfs
+            dfs_source = dfs[0]
+            con1 = dfs_source['ts'] > start_filter_ts
+            con2 = dfs_source['ts'] < end_filter_ts
+            dfs_source_res = dfs_source[con1 & con2]
+            # 重置索引，此时的索引已有问题
+            dfs_source_res.reset_index(inplace=True, drop=True)
+            # 获取经过差值处理后的 dfs
+            dfs_inter = dfs[1]
+            con1 = dfs_inter['ts'] > start_filter_ts
+            con2 = dfs_inter['ts'] < end_filter_ts
+            dfs_inter_res = dfs_inter[con1 & con2]
+            # step2: 对差值处理后的数据进行 nan limit 的过滤
+            df_new = convert_inter_df_2_nan(dfs_source_res, dfs_inter_res, 'rad', 60)
+            plt.plot(df_new['dt_x'], df_new['rad'])
+            plt.show()
+            to_store(dir_path_str, f'{station_temp}_2021_inter.csv', df_new)
     pass
 
 
