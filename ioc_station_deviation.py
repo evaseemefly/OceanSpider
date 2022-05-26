@@ -283,22 +283,31 @@ def main():
         # 'saba',
         # 'lank'
         # --
-        'ms002',
-        'ms004',
-        'ms005',
-        'ms006',
-        'sibo',
-        'sebe',
-        'maju',
-        'koli',
-        'pand',
-        'cili',
-        'sema',
-        'sadp',
+        # 'ms002',
+        # 'ms004',
+        # 'ms005',
+        # 'ms006',
+        # 'sibo',
+        # 'sebe',
+        # 'maju',
+        # 'koli',
+        # 'pand',
+        # 'cili',
+        # 'sema',
+
+        # --
+        # 'sadp',
+        # 'prig',
+        # 'sura',
+        'beno',
+        'lemba',
+        'ambon',
+        'saum',
+        'bitu'
     ]
     # 定义 起止 的时间(ts)
     # TODO:[-] 22-05-17 注意使用的是docker容器，注意路径不要用错!
-    dir_path_str: str = r'/opt/project/data'
+    dir_path_str: str =  r'/opt/project/data'
     for station_temp in list_station:
         start = datetime.datetime(2021, 1, 1)
         end = datetime.datetime(2022, 1, 1)
