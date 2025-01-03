@@ -1877,9 +1877,21 @@ def main():
 
     ]
 
+    # TODO:[-] 24-10-14 补录的部分全球站点
+    list_station: List[str] = [
+        'deke',
+        'upol',
+        'nkfa',
+        'raro',
+        'kawa',
+        'vhbc',
+        'qtro2',
+        'gyer',
+    ]
+
     dir_path_str: str = r'/opt/project/data'
-    dir_path_str = r'D:\05data\02spider_ocean_data\2023_all_part1_inter'
-    for station_temp in list_station_part1:
+    dir_path_str = r'D:\05data\02spider_ocean_data\2023_all_global_24'
+    for station_temp in list_station:
 
         start_arrow = arrow.Arrow(2023, 1, 1)
         end_arrow = arrow.Arrow(2024, 1, 15)
