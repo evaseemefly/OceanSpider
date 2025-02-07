@@ -1,9 +1,12 @@
+# 25-01-16 从数据库中导出爬取站点数据
+
 import pathlib
 
 import pandas as pd
 from sqlalchemy import create_engine
 
 from _privacy import DB_CONFIG
+from common.common import LIST_STATION
 
 db_url = f"mysql+pymysql://{DB_CONFIG['username']}:{DB_CONFIG['password']}@{DB_CONFIG['host']}:{DB_CONFIG['port']}/{DB_CONFIG['database']}"
 
@@ -19,6 +22,7 @@ engine = create_engine(db_url)
 station_codes = ['lecy', ]
 
 # 按月分表的表名列表（可动态生成）
+# TODO:[-] 25-02-05 由于需要生成约370天的数据，所以需要加入跨年后的数据
 monthly_tables = [
     'station_realdata_specific_202401',
     'station_realdata_specific_202402',
@@ -32,6 +36,7 @@ monthly_tables = [
     'station_realdata_specific_202410',
     'station_realdata_specific_202411',
     'station_realdata_specific_202412',
+    'station_realdata_specific_202501',
 ]
 
 # 输出文件路径
@@ -41,7 +46,7 @@ output_dir = "./data"  # 确保该目录存在
 def main():
     YEAR_STR: str = '2024'
     # 遍历 station_code 并分别查询和保存结果
-    for station_code in station_codes:
+    for station_code in LIST_STATION:
         all_data = []  # 用于存储该 station_code 的所有数据
 
         for table in monthly_tables:
@@ -53,19 +58,16 @@ def main():
             ORDER BY ts ASC;
             """
             # query = "SELECT * FROM station_realdata_specific_202402;"
-            # 执行查询并将结果转换为 DataFrame
-            # TODO:[*] 25-01-02 __init__() got multiple values for argument 'schema'
-            df = pd.read_sql(query, con=engine)
-            # df = pd.read_sql_query(query, engine, schema=None)
-            all_data.append(df)
-            print(f'[-]读取station:{station_code}——table:{table}完毕!')
-            # try:
-            #     # TODO:[*] 25-01-02 __init__() got multiple values for argument 'schema'
-            #     df = pd.read_sql(query, con=engine)
-            #     all_data.append(df)
-            # except Exception as e:
-            #     print(f"查询表 {table} 时出错: {e}")
-            #     continue
+            try:
+                # 执行查询并将结果转换为 DataFrame
+                # TODO:[*] 25-01-02 __init__() got multiple values for argument 'schema'
+                df = pd.read_sql(query, con=engine)
+                # df = pd.read_sql_query(query, engine, schema=None)
+                all_data.append(df)
+                print(f'[-]读取station:{station_code}——table:{table}完毕!')
+            except Exception as e:
+                print(f"查询表 {table} 时出错: {e}")
+                continue
 
         # 合并所有数据
         if all_data:
